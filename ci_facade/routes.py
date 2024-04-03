@@ -2,16 +2,6 @@ from . import app, gl
 from flask import jsonify, request
 import os
 
-@app.route('/api/projects', methods=['GET'])
-def get_projects():
-    """Fetch a list of projects from GitLab and return them as JSON."""
-    try:
-        projects = gl.projects.list(membership=True)
-        projects_data = [{"id": project.id, "name": project.name, "web_url": project.web_url} for project in projects]
-        return jsonify(projects_data)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
 @app.route('/update_merge_request', methods=['POST'])
 def update_merge_request():
     # Parse the JSON object from the request
