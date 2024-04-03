@@ -5,7 +5,7 @@
 
 1. Activate virtual environment (Optional, but recommended)
 
-   `foo@bar:~$ source githost_service_env/bin/activate`
+   `foo@bar:~$ source ci_facade_env/bin/activate`
 
 2. Install dependencies
 
