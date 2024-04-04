@@ -32,8 +32,8 @@ class TestUpdateMergeRequest(unittest.TestCase):
         self.assertTrue('Merge request updated successfully.' in response.get_data(as_text=True))
         
         # Ensure the GitLab API was called as expected
-        mock_get.assert_called_once_with('123', lazy=True)
-        mock_project.mergerequests.get.assert_called_once_with('1', lazy=True)
+        mock_get.assert_called_once_with('123')
+        mock_project.mergerequests.get.assert_called_once_with('1')
         
         # Check that the merge request description was updated correctly
         new_description = 'Old Description\n\nExplorViz URL: http://example.com'
@@ -43,7 +43,7 @@ class TestUpdateMergeRequest(unittest.TestCase):
     @patch('ci_facade.gl.projects.get')
     def test_no_payload_uses_env_vars(self, mock_get, mock_env):
         # Mock environment variables
-        mock_env.side_effect = lambda x: {'CI_MERGE_REQUEST_IID ': '1', 'CI_MERGE_REQUEST_PROJECT_ID ': '123', 'DEFAULT_EXPLORVIZ_URL': 'http://example.com'}.get(x)
+        mock_env.side_effect = lambda x: {'CI_MERGE_REQUEST_IID': '1', 'CI_MERGE_REQUEST_PROJECT_ID': '123', 'DEFAULT_EXPLORVIZ_URL': 'http://example.com'}.get(x)
 
         # Mock the Project and MergeRequest objects from the GitLab API
         mock_project = MagicMock()
@@ -57,8 +57,8 @@ class TestUpdateMergeRequest(unittest.TestCase):
         # Assertions
         self.assertEqual(response.status_code, 200)
         self.assertIn('Merge request updated successfully.', response.get_data(as_text=True))
-        mock_get.assert_called_once_with('123', lazy=True)
-        mock_project.mergerequests.get.assert_called_once_with('1', lazy=True)
+        mock_get.assert_called_once_with('123')
+        mock_project.mergerequests.get.assert_called_once_with('1')
         self.assertIn('http://example.com', mock_merge_request.description)
 
     @patch('os.environ.get')
@@ -77,7 +77,7 @@ class TestUpdateMergeRequest(unittest.TestCase):
     @patch('ci_facade.gl.projects.get')
     def test_partial_payload_supplemented_by_env_vars(self, mock_get, mock_env):
         # Mock environment variables for missing payload data
-        mock_env.side_effect = lambda x: {'CI_MERGE_REQUEST_PROJECT_ID ': '123'}.get(x)
+        mock_env.side_effect = lambda x: {'CI_MERGE_REQUEST_PROJECT_ID': '123'}.get(x)
 
         # Mock the Project and MergeRequest objects from the GitLab API
         mock_project = MagicMock()
@@ -97,8 +97,8 @@ class TestUpdateMergeRequest(unittest.TestCase):
         # Assertions for behavior with environment variable supplementation
         self.assertEqual(response.status_code, 200)
         self.assertIn('Merge request updated successfully.', response.get_data(as_text=True))
-        mock_get.assert_called_once_with('123', lazy=True)  # Project ID from env var
-        mock_project.mergerequests.get.assert_called_once_with('1', lazy=True)
+        mock_get.assert_called_once_with('123')  # Project ID from env var
+        mock_project.mergerequests.get.assert_called_once_with('1')
         self.assertIn('http://example.com', mock_merge_request.description)
         
 if __name__ == '__main__':
