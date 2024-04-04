@@ -7,8 +7,7 @@ LOGGER = logging.getLogger(__name__)
 
 @app.route('/update_merge_request', methods=['POST'])
 def update_merge_request():
-    # Parse the JSON object from the request
-    data = request.json
+    data = request.get_json(silent=True) or {}
 
     merge_request_id = data.get('merge_request_id') or os.environ.get('CI_MERGE_REQUEST_IID')
     project_id = data.get('project_id') or os.environ.get('CI_MERGE_REQUEST_PROJECT_ID')
