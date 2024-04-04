@@ -1,7 +1,7 @@
 # Git Hosting Service Facade (ghs-facade)
 
-The ghs-facade provides a HTTP API used by ExplorViz to access Git hosting service APIs, e.g., GitLab.
-For example, ExplorViz's [code-service](https://github.com/explorviz/code-service) uses this facade to insert the URL to ExplorViz in the description of a given merge request.
+The ghs-facade provides an HTTP API used by ExplorViz to access Git hosting services' APIs, e.g., GitLab.
+For example, ExplorViz's [code-service](https://github.com/explorviz/code-service) uses this facade to insert the URL to the ExplorViz [frontend](https://github.com/explorviz/frontend) in the description of a given merge request.
 
 ## Requirements
 - Python >= 3.12.2
