@@ -8,7 +8,7 @@ For example, ExplorViz's [code-service](https://github.com/explorviz/code-servic
 - A `PERSONAL_ACCESS_TOKEN` that has been registered for a user in GitLab.
 
 ## Usage
-- Local: `PERSONAL_ACCESS_TOKEN=<INSERT_PERSONAL_ACCESS_TOKEN> GITLAB_API_URL=<INSERT_URL> python run.py`
+- Local: `PERSONAL_ACCESS_TOKEN=<INSERT_PERSONAL_ACCESS_TOKEN> GITLAB_API_URL=<INSERT_URL> python3 app.py`
 - Docker: TODO
 
 ## Development
@@ -19,11 +19,11 @@ For example, ExplorViz's [code-service](https://github.com/explorviz/code-servic
 
 2. Install dependencies
 
-    `foo@bar:~$ pip install -r requirements.txt`
+    `foo@bar:~$ pip3 install -r requirements.txt`
 
 3. Run Flask app
 
-    `foo@bar:~$ python run.py`
+    `foo@bar:~$ python3 app.py`
 
 4. Deactivate virtual environment
 
@@ -35,7 +35,7 @@ For example, ExplorViz's [code-service](https://github.com/explorviz/code-servic
 
 ### Helpful commands
 
-`PERSONAL_ACCESS_TOKEN=<INSERT_PERSONAL_ACCESS_TOKEN> GITLAB_API_URL=<INSERT_URL> CI_MERGE_REQUEST_IID=1 CI_MERGE_REQUEST_PROJECT_ID=1 DEFAULT_EXPLORVIZ_URL=http://localhost:4200 python3 run.py`
+`PERSONAL_ACCESS_TOKEN=<INSERT_PERSONAL_ACCESS_TOKEN> GITLAB_API_URL=<INSERT_URL> CI_MERGE_REQUEST_IID=1 CI_MERGE_REQUEST_PROJECT_ID=1 DEFAULT_EXPLORVIZ_URL=http://localhost:4200 python3 app.py`
 
 `curl -H 'Content-Type: application/json' -X POST http://localhost:5000/update_merge_request`
 
