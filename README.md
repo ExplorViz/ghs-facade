@@ -38,3 +38,9 @@ For example, ExplorViz's [code-service](https://github.com/explorviz/code-servic
 `PERSONAL_ACCESS_TOKEN=<INSERT_PERSONAL_ACCESS_TOKEN> GITLAB_API_URL=<INSERT_URL> CI_MERGE_REQUEST_IID=1 CI_MERGE_REQUEST_PROJECT_ID=1 DEFAULT_EXPLORVIZ_URL=http://localhost:4200 python3 run.py`
 
 `curl -H 'Content-Type: application/json' -X POST http://localhost:5000/update_merge_request`
+
+## Testing
+
+- Integration tests: `PERSONAL_ACCESS_TOKEN=ypCa3Dzb23o5nvsixwPA GITLAB_API_URL=http://localhost:8345 pytest tests/integration`
+
+- Unit tests: `PERSONAL_ACCESS_TOKEN=ypCa3Dzb23o5nvsixwPA GITLAB_API_URL=http://localhost:8345 pytest tests/unit`
