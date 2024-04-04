@@ -1,7 +1,17 @@
-## Requirements
-- Python 3.12.2
+# Git Hosting Service Facade (ghs-facade)
 
-## Startup
+The ghs-facade provides a HTTP API used by ExplorViz to access Git hosting service APIs, e.g., GitLab.
+For example, ExplorViz's [code-service](https://github.com/explorviz/code-service) uses this facade to insert the URL to ExplorViz in the description of a given merge request.
+
+## Requirements
+- Python >= 3.12.2
+- A `PERSONAL_ACCESS_TOKEN` that has been registered for a user in GitLab.
+
+## Usage
+- Local: `PERSONAL_ACCESS_TOKEN=<INSERT_PERSONAL_ACCESS_TOKEN> GITLAB_API_URL=<INSERT_URL> python run.py`
+- Docker: TODO
+
+## Development
 
 1. Activate virtual environment (Optional, but recommended)
 
@@ -23,8 +33,8 @@
 
     If you installed a library, update the `requirements.txt` file via `foo@bar:~$ pip3 freeze > requirements.txt`
 
-## Development
+### Helpful commands
 
-`PERSONAL_ACCESS_TOKEN=glpat-REeaU-oVWoPBAziQu6p7 GITLAB_API_URL=http://localhost:8080 CI_MERGE_REQUEST_IID=1 CI_MERGE_REQUEST_PROJECT_ID=1 DEFAULT_EXPLORVIZ_URL=http://localhost:4200 python3 run.py`
+`PERSONAL_ACCESS_TOKEN=<INSERT_PERSONAL_ACCESS_TOKEN> GITLAB_API_URL=<INSERT_URL> CI_MERGE_REQUEST_IID=1 CI_MERGE_REQUEST_PROJECT_ID=1 DEFAULT_EXPLORVIZ_URL=http://localhost:4200 python3 run.py`
 
-`curl -H 'Content-Type: application/json' -d '{"login":"my_login","password":"my_password"}' -X POST http://localhost:5000/update_merge_request`
+`curl -H 'Content-Type: application/json' -d '{}' -X POST http://localhost:5000/update_merge_request`
