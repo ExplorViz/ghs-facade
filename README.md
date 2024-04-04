@@ -9,7 +9,7 @@ For example, ExplorViz's [code-service](https://github.com/explorviz/code-servic
 
 ## Usage
 - Local: `PERSONAL_ACCESS_TOKEN=<INSERT_PERSONAL_ACCESS_TOKEN> GITLAB_API_URL=<INSERT_URL> python3 app.py`
-- Docker: TODO
+- Docker: `docker run -d -p 5050:80 -e PERSONAL_ACCESS_TOKEN=ypCa3Dzb23o5nvsixwPA -e GITLAB_API_URL=http://localhost:8345 explorviz/ghs-facade:latest`
 
 ## Development
 
