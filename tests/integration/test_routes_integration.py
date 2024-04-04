@@ -2,7 +2,7 @@ import time
 import pytest
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.waiting_utils import wait_for_logs
-from ci_facade import gl
+from ghs_facade import gl
 import logging
 
 LOGGER = logging.getLogger(__name__)

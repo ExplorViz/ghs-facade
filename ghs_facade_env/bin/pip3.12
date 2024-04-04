@@ -1,4 +1,4 @@
-#!/Users/alex/Git/explorviz/backend/ci-facade/ci_facade_env/bin/python3.12
+#!/Users/alex/Git/explorviz/backend/ghs-facade/ghs_facade_env/bin/python3.12
 # -*- coding: utf-8 -*-
 import re
 import sys

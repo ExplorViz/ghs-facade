@@ -1,13 +1,13 @@
 import unittest
 from unittest.mock import patch, MagicMock
-from ci_facade import app 
+from ghs_facade import app 
 
 class TestUpdateMergeRequest(unittest.TestCase):
     def setUp(self):
         self.app = app.test_client()
         self.app.testing = True
     
-    @patch('ci_facade.gl.projects.get')
+    @patch('ghs_facade.gl.projects.get')
     def test_update_merge_request(self, mock_get):
         # Mock the Project and MergeRequest objects from the GitLab API
         mock_project = MagicMock()
@@ -40,7 +40,7 @@ class TestUpdateMergeRequest(unittest.TestCase):
         self.assertEqual(mock_merge_request.description, new_description)
 
     @patch('os.environ.get')
-    @patch('ci_facade.gl.projects.get')
+    @patch('ghs_facade.gl.projects.get')
     def test_no_payload_uses_env_vars(self, mock_get, mock_env):
         # Mock environment variables
         mock_env.side_effect = lambda x: {'CI_MERGE_REQUEST_IID': '1', 'CI_MERGE_REQUEST_PROJECT_ID': '123', 'DEFAULT_EXPLORVIZ_URL': 'http://example.com'}.get(x)
@@ -74,7 +74,7 @@ class TestUpdateMergeRequest(unittest.TestCase):
         self.assertIn('Missing required parameters.', response.get_data(as_text=True))
 
     @patch('os.environ.get')
-    @patch('ci_facade.gl.projects.get')
+    @patch('ghs_facade.gl.projects.get')
     def test_partial_payload_supplemented_by_env_vars(self, mock_get, mock_env):
         # Mock environment variables for missing payload data
         mock_env.side_effect = lambda x: {'CI_MERGE_REQUEST_PROJECT_ID': '123'}.get(x)

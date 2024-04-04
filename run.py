@@ -1,4 +1,4 @@
-from ci_facade import app
+from ghs_facade import app
 
 if __name__ == '__main__':
     app.run(debug=True)
