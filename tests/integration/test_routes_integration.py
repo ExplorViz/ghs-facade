@@ -4,23 +4,33 @@ from testcontainers.core.container import DockerContainer
 from testcontainers.core.waiting_utils import wait_for_logs
 from ghs_facade import app, gl
 import logging
+import socket 
 
 LOGGER = logging.getLogger(__name__)
+
+GITLAB_PORT = 8345
 
 @pytest.fixture(scope="session")
 def gitlab_container():
 
-    # This uses the official GitLab Docker image. Adjust the version as needed.
+
+    isPortFree = socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect_ex(('localhost', GITLAB_PORT)) != 0
+    
     container = DockerContainer("explorviz/build-images:gitlab-ce")
-    container.with_bind_ports(80, 8345)
-    container.start()
 
+    if isPortFree:
+        LOGGER.info("Port is not allocated. Will now start a Gitlab CE instance.")
+        container.with_bind_ports(80, GITLAB_PORT)
+        container.start()
 
-    # Wait for GitLab to be up. This might need adjustment based on your system's performance.
-    wait_for_logs(container, "Server initialized", timeout=300)
+        # Wait for GitLab to be up. This might need adjustment based on your system's performance.
+        wait_for_logs(container, "Server initialized", timeout=300)
 
-    LOGGER.info("Server seems to be running. Tests will start in 20 seconds.")
-    time.sleep(20)
+        LOGGER.info("Server seems to be running. Tests will start in 20 seconds.")
+        time.sleep(20)
+    
+    else:
+        LOGGER.info("Port is already allocated. GitLab CE is probably running. Will run tests against this running instance.")
 
     # Create project
     LOGGER.info("Creating dummy project and merge request")
@@ -47,7 +57,8 @@ def gitlab_container():
     yield container
 
     # Cleanup after tests are done
-    container.stop(delete_volume=True, force=True)
+    if isPortFree:
+        container.stop(delete_volume=True, force=True)
 
 def test_update_merge_request(gitlab_container):
 
