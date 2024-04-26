@@ -1,0 +1,74 @@
+default:
+  tags:
+    - exec-docker
+  image: python:3.12.2
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+      - .cache/pip
+
+variables:
+  PIP_CACHE_DIR: ".cache/pip"
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: "$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS"
+      when: never
+    - if: "$CI_COMMIT_BRANCH"
+
+stages:
+  - build
+  - test
+  - publish
+
+build:
+  stage: build
+  script:
+    - pip3 install --no-cache-dir -r requirements.txt
+  artifacts:
+    paths:
+      - requirements.txt
+
+unit-test:
+  stage: test
+  image: python:3.12.2
+  script:
+    - pip3 install -r requirements.txt
+    - pip3 install pytest pytest-cov
+    - PERSONAL_ACCESS_TOKEN=ypCa3Dzb23o5nvsixwPA GITLAB_API_URL=http://localhost:8345 pytest tests/unit --cov=app --cov-report term --cov-report xml:coverage.xml
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+
+.push-dockerhub-base-job:
+  stage: publish
+  image:
+    name: gcr.io/kaniko-project/executor:latest
+    entrypoint: [""]
+  variables:
+    DOCKER_CONFIG: "/kaniko/.docker/"
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $DOCKERHUB_IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $DOCKERHUB_IMAGE_NAME:latest
+  after_script:
+    - echo "Image was uploaded to Dockerhub; $DOCKERHUB_IMAGE_NAME:latest and $DOCKERHUB_IMAGE_NAME:$CI_COMMIT_SHORT_SHA"
+
+push-dockerhub-main:
+  extends: .push-dockerhub-base-job
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+
+push-dockerhub-mr:
+  extends: .push-dockerhub-base-job
+  stage: publish
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $DOCKERHUB_IMAGE_NAME:mr-$CI_MERGE_REQUEST_IID
+  after_script:
+    - echo "Image was uploaded to Dockerhub; $DOCKERHUB_IMAGE_NAME:mr-$CI_MERGE_REQUEST_IID"
