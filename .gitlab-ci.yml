@@ -1,0 +1,94 @@
+include:
+  - project: 'ExplorViz/code/deployment'
+    file: '.gitlab-ci-explorviz-common.yml'
+
+default:
+  tags:
+    - exec-docker
+  image: python:3.12.2
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+      - .cache/pip
+
+variables:
+  PIP_CACHE_DIR: ".cache/pip"
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: "$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS"
+      when: never
+    - if: "$CI_COMMIT_BRANCH"
+
+stages:
+  - build
+  - test
+  - publish:images
+  - publish:retagging
+
+build:
+  stage: build
+  script:
+    - pip3 install --no-cache-dir -r requirements.txt
+  artifacts:
+    expire_in: 1h
+    paths:
+      - requirements.txt
+
+unit-test:
+  stage: test
+  image: python:3.12.2
+  script:
+    - pip3 install -r requirements.txt
+    - pip3 install pytest pytest-cov
+    - PERSONAL_ACCESS_TOKEN=ypCa3Dzb23o5nvsixwPA GITLAB_API_URL=http://localhost:8345 pytest tests/unit --cov=app --cov-report term --cov-report xml:coverage.xml
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+
+push-to-dockerhub-main-amd64:
+  extends:
+    - .build-and-deploy
+  stage: publish:images
+  variables:
+    DOCKERHUB_TAG: 'amd64'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PIPELINE_SOURCE != "schedule" && $CI_COMMIT_BRANCH == "main"'
+
+retag-main-amd64-as-latest:
+  extends: .retag-dockerhub-image
+  stage: publish:retagging
+  rules:
+    - if: $MULTI_ARCH_BUILD || $ARM64_BUILD
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PIPELINE_SOURCE != "schedule" && $CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "pipeline"'
+  variables:
+    SOURCE_TAG: 'amd64'
+    TARGET_TAG: 'latest'
+  cache:
+
+retag-main-amd64-as-commit:
+  extends: .retag-dockerhub-image
+  stage: publish:retagging
+  rules:
+    - if: $MULTI_ARCH_BUILD || $ARM64_BUILD
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PIPELINE_SOURCE != "schedule" && $CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "pipeline"'
+  variables:
+    SOURCE_TAG: 'amd64'
+    TARGET_TAG: $CI_COMMIT_SHORT_SHA
+  cache:
+
+push-to-dockerhub-mr-amd64:
+  extends:
+    - .build-and-deploy
+  stage: publish:images
+  variables:
+    DOCKERHUB_TAG: mr-$CI_MERGE_REQUEST_IID
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"'
