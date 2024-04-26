@@ -46,7 +46,7 @@ unit-test:
 .push-dockerhub-base-job:
   stage: publish
   image:
-    name: gcr.io/kaniko-project/executor:latest
+    name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   variables:
     DOCKER_CONFIG: "/kaniko/.docker/"
