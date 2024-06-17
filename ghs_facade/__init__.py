@@ -1,9 +1,11 @@
 from flask import Flask
+from flask_cors import CORS
 import os
 import gitlab
 
 # Initialize the Flask application
 app = Flask(__name__)
+CORS(app)
 
 # Configuration for GitLab
 PERSONAL_ACCESS_TOKEN = os.environ.get('PERSONAL_ACCESS_TOKEN')
