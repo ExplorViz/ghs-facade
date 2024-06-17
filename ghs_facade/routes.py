@@ -65,7 +65,7 @@ def get_all_projects(api_token: str, host_url: str):
         return jsonify({"success": False, "message": "Missing required parameters."}), 400
     try:
         headers = headers = {"Content-Type": "application/json", "PRIVATE-TOKEN": api_token}
-        response = requests.get(f"https://{host_url}/api/v4/projects?simple=true", headers=headers)
+        response = requests.get(f"https://{host_url}/api/v4/projects?simple=true&per_page=100", headers=headers)
         if (response.status_code == 200):
             return getProjects(response.json())
         else:
