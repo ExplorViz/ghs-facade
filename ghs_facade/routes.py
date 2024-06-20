@@ -3,8 +3,6 @@ from . import app, gl
 from flask import jsonify, request
 import os
 import logging
-import requests
-import json
 import gitlab
 
 LOGGER = logging.getLogger(__name__)
