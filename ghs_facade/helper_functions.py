@@ -5,4 +5,7 @@ def getProjects(projects) -> list[any]:
         simpleProject["id"] = project.id
         simpleProject["name"] = project.name
         allProjects.append(simpleProject)
-    return allProjects
+    
+    sortedProjects = sorted(allProjects, key=lambda project: project["name"])
+    
+    return sortedProjects
