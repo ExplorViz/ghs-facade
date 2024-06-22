@@ -98,3 +98,50 @@ def test_update_merge_request(gitlab_container):
     # Check GitLab merge request
     assert f"ExplorViz URL: {explorviz_url}" in updated_mr.attributes.get("description")
 
+def test_get_all_projects(gitlab_container):
+    testApp = app.test_client()
+    testApp.testing = True
+
+    flask_app_url = "http://localhost:5000/get_all_projects"
+
+    # Make the GET request to the Flask app
+    response = testApp.get(flask_app_url)
+
+    assert response.status_code == 200
+
+def test_create_issue(gitlab_container):
+    testApp = app.test_client()
+    testApp.testing = True
+
+    project_name_with_namespace = "root/test-project"
+    project = gl.projects.get(project_name_with_namespace)
+
+    assert project is not None
+
+    flask_app_url = "http://localhost:5000/create_issue"
+    
+    # Extract the project ID for the test
+    project_id = project.id
+
+    # Data to be sent to Flask app
+    data = {
+        "project_id": project_id,
+        "title": "TestTitle",
+        "description": "TestDescription",
+    }
+
+    # Make the POST request to the Flask app
+    response = testApp.post(flask_app_url, json=data)
+
+    assert response.status_code == 200
+    assert 'Successfully created Issue.' in response.get_data(as_text=True)
+
+    issues = gl.issues.list()
+    
+    assert len(issues) == 1
+    issue = issues[0]
+    
+    assert issue.project_id == project_id
+    assert issue.title == "TestTitle"
+    assert issue.description == "TestDescription"
+
