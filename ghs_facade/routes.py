@@ -104,7 +104,7 @@ def create_issue():
             project = gl.projects.get(project_id)
             issue = project.issues.create({"title": title, "description": description})
             issue.save()
-            return jsonify({"success": True, "message": "Successfully created Issue"}), 200
+            return jsonify({"success": True, "message": "Successfully created Issue."}), 200
         except Exception as e:
             return jsonify({"success": False, "message": str(e)}), 400
     
@@ -114,6 +114,6 @@ def create_issue():
             project = gitApi.projects.get(project_id)
             issue = project.issues.create({"title": title, "description": description})
             issue.save()
-            return jsonify({"success": True, "message": "Successfully created Issue"}), 200
+            return jsonify({"success": True, "message": "Successfully created Issue."}), 200
         except Exception as e:
             return jsonify({"success": False, "message": str(e)}), 400
