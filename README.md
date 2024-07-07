@@ -62,3 +62,7 @@ For example, ExplorViz's [code-service](https://github.com/explorviz/code-servic
 - Integration tests: `PERSONAL_ACCESS_TOKEN=ypCa3Dzb23o5nvsixwPA GITLAB_API_URL=http://localhost:8345 pytest tests/integration`
 
 - Unit tests: `PERSONAL_ACCESS_TOKEN=ypCa3Dzb23o5nvsixwPA GITLAB_API_URL=http://localhost:8345 pytest tests/unit`
+
+### Potential Problems
+
+- This is probably not a problem, but might occur on some Docker Client updates: During the integration tests, a dependency of testcontainers uses the `/var/run/docker.sock` to retrieve data about containers. Therefore, it is essential to have a symbolic link from `/var/run/docker.sock` to the Docker socket file typically located at `$HOME/.docker/run/docker.sock` for the integration tests to function correctly.
