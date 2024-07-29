@@ -53,7 +53,7 @@ def get_project(name: str, api_token=None, host_url=None):
     else:
         try:
 
-            gitApi = gitlab.Gitlab("https://" + host_url, private_token=api_token)
+            gitApi = gitlab.Gitlab(host_url, private_token=api_token)
             projects = gitApi.projects.list(get_all=True, search=name)
             return getProjects(projects)
 
@@ -61,23 +61,27 @@ def get_project(name: str, api_token=None, host_url=None):
             return jsonify({"success": False, "message": str(e)}), 400
 
 
-
-@app.route('/get_all_projects/<string:api_token>/<string:host_url>', methods=['GET'])
-@app.route('/get_all_projects', methods=['GET'])
+# use post because if in the parameter in the url has https:// in it, the request does not work 
+# @app.route('/get_all_projects/<string:api_token>/<string:host_url>', methods=['GET'])
+@app.route('/get_all_projects', methods=['POST'])
 def get_all_projects(api_token=None, host_url=None):
     LOGGER.debug(f"Get all projects, that can be accessed with the API-Token.")
+    data = request.get_json()
 
-    if (api_token != None and host_url != None):
+    api_token = data.get('api_token')
+    host_url = data.get('host_url')
+    
+    if not all([api_token, host_url]):
         try:
-            gitApi = gitlab.Gitlab("https://" + host_url, private_token=api_token)
-            projects = gitApi.projects.list(get_all=True)
+            projects = gl.projects.list(get_all=True)
             return getProjects(projects)
 
         except Exception as e:
             return jsonify({"success": False, "message": str(e)}), 400
     else:
         try:
-            projects = gl.projects.list(get_all=True)
+            gitApi = gitlab.Gitlab(host_url, private_token=api_token)
+            projects = gitApi.projects.list(get_all=True)
             return getProjects(projects)
 
         except Exception as e:
@@ -110,7 +114,7 @@ def create_issue():
     
     else:
         try:
-            gitApi = gitlab.Gitlab("https://" + host_url, private_token=api_token)
+            gitApi = gitlab.Gitlab(host_url, private_token=api_token)
             project = gitApi.projects.get(project_id)
             issue = project.issues.create({"title": title, "description": description})
             issue.save()
