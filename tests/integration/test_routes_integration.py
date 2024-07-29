@@ -104,8 +104,10 @@ def test_get_all_projects(gitlab_container):
 
     flask_app_url = "http://localhost:5000/get_all_projects"
 
+    # data = {"api_token": "testToken", "host_url": "https://git.example.com"}
+
     # Make the GET request to the Flask app
-    response = testApp.get(flask_app_url)
+    response = testApp.post(flask_app_url, json={})
 
     assert response.status_code == 200
 

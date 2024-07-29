@@ -36,15 +36,23 @@ def update_merge_request():
         return jsonify({"success": True, "message": "Description already includes ExplorViz URL."}), 200
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 400
+    
 
-
+# use post because if the parameter has https:// in it, the request does not work 
 # could be usefull in the future to get a project by its name
-@app.route('/get_project/<string:name>/<string:api_token>/<string:host_url>', methods=['GET'])
-@app.route('/get_project/<string:name>', methods=['GET'])
-def get_project(name: str, api_token=None, host_url=None):
+@app.route('/get_project', methods=['POST'])
+def get_project():
     LOGGER.debug(f"Get one projects, that can be accessed with the API-Token.")
+    data = request.get_json()
 
-    if (api_token == None and host_url == None):
+    api_token = data.get('api_token')
+    host_url = data.get('host_url')
+    name = data.get('name')
+
+    if not all([name]):
+        return jsonify({"success": False, "message": "Missing required parameters."}), 400
+
+    if not all([api_token, host_url]):
         try:
             projects = gl.projects.list(get_all=True, search=name)
             return getProjects(projects)
@@ -61,10 +69,9 @@ def get_project(name: str, api_token=None, host_url=None):
             return jsonify({"success": False, "message": str(e)}), 400
 
 
-# use post because if in the parameter in the url has https:// in it, the request does not work 
-# @app.route('/get_all_projects/<string:api_token>/<string:host_url>', methods=['GET'])
+# use post because if the parameter has https:// in it, the request does not work 
 @app.route('/get_all_projects', methods=['POST'])
-def get_all_projects(api_token=None, host_url=None):
+def get_all_projects():
     LOGGER.debug(f"Get all projects, that can be accessed with the API-Token.")
     data = request.get_json()
 

@@ -112,7 +112,7 @@ class TestGetProjects(unittest.TestCase):
 
         mock_get.return_value = mock_project
 
-        response = self.app.get("/get_project/Testproject")
+        response = self.app.post("/get_project", json={"name": "Testproject"})
 
         self.assertEqual(response.status_code, 200)
         
@@ -124,7 +124,7 @@ class TestGetProjects(unittest.TestCase):
 
         mock_get.return_value = mock_project
 
-        response = self.app.get("/get_all_projects")
+        response = self.app.post("/get_all_projects", json={})
 
         self.assertEqual(response.status_code, 200)
         
