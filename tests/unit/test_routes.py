@@ -100,6 +100,61 @@ class TestUpdateMergeRequest(unittest.TestCase):
         mock_get.assert_called_once_with('123')  # Project ID from env var
         mock_project.mergerequests.get.assert_called_once_with('1')
         self.assertIn('http://example.com', mock_merge_request.description)
+
+class TestGetProjects(unittest.TestCase):
+    def setUp(self):
+        self.app = app.test_client()
+        self.app.testing = True
+    
+    @patch('ghs_facade.gl.projects.list')
+    def test_get_project(self, mock_get):
+        mock_project = MagicMock(project_id="id", name="Testproject")
+
+        mock_get.return_value = mock_project
+
+        response = self.app.post("/get_project", json={"name": "Testproject"})
+
+        self.assertEqual(response.status_code, 200)
+        
+        mock_get.assert_called_once_with(get_all=True, search="Testproject")
+
+    @patch('ghs_facade.gl.projects.list')
+    def test_get_all_projects(self, mock_get):
+        mock_project = MagicMock(project_id="id", name="Testproject")
+
+        mock_get.return_value = mock_project
+
+        response = self.app.post("/get_all_projects", json={})
+
+        self.assertEqual(response.status_code, 200)
+        
+        mock_get.assert_called_once_with(get_all=True)
+    
+    @patch('ghs_facade.gl.projects.get')
+    def test_create_issue(self, mock_get):
+        mock_project = MagicMock()
+        mock_issue = MagicMock(title="Testtitle", description="Testdescription")
+        
+
+        mock_get.return_value = mock_project
+        mock_project.issue.create.return_value = mock_issue
+
+        response = self.app.post("/create_issue", json={"project_id": "id", "title": "Testtitle", "description": "Testdescription"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Successfully created Issue', response.get_data(as_text=True))
+    
+    def test_create_issue_when_params_missing(self):
+
+        response = self.app.post("/create_issue", json={"title": "Testtitle", "description": "Testdescription"})
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('Missing required parameters.', response.get_data(as_text=True))
+
+        response = self.app.post("/create_issue", json={})
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('Missing required parameters.', response.get_data(as_text=True))
         
 if __name__ == '__main__':
     unittest.main()

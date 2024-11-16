@@ -1,7 +1,9 @@
+from ghs_facade.helper_functions import getProjects
 from . import app, gl
 from flask import jsonify, request
 import os
 import logging
+import gitlab
 
 LOGGER = logging.getLogger(__name__)
 
@@ -34,3 +36,95 @@ def update_merge_request():
         return jsonify({"success": True, "message": "Description already includes ExplorViz URL."}), 200
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 400
+    
+
+# use post because if the parameter has https:// in it, the request does not work 
+# could be usefull in the future to get a project by its name
+@app.route('/get_project', methods=['POST'])
+def get_project():
+    LOGGER.debug(f"Get one projects, that can be accessed with the API-Token.")
+    data = request.get_json()
+
+    api_token = data.get('api_token')
+    host_url = data.get('host_url')
+    name = data.get('name')
+
+    if not all([name]):
+        return jsonify({"success": False, "message": "Missing required parameters."}), 400
+
+    if not all([api_token, host_url]):
+        try:
+            projects = gl.projects.list(get_all=True, search=name)
+            return getProjects(projects)
+        except Exception as e:
+            return jsonify({"success": False, "message": str(e)}), 400
+    else:
+        try:
+
+            gitApi = gitlab.Gitlab(host_url, private_token=api_token)
+            projects = gitApi.projects.list(get_all=True, search=name)
+            return getProjects(projects)
+
+        except Exception as e:
+            return jsonify({"success": False, "message": str(e)}), 400
+
+
+# use post because if the parameter has https:// in it, the request does not work 
+@app.route('/get_all_projects', methods=['POST'])
+def get_all_projects():
+    LOGGER.debug(f"Get all projects, that can be accessed with the API-Token.")
+    data = request.get_json()
+
+    api_token = data.get('api_token')
+    host_url = data.get('host_url')
+    
+    if not all([api_token, host_url]):
+        try:
+            projects = gl.projects.list(get_all=True)
+            return getProjects(projects)
+
+        except Exception as e:
+            return jsonify({"success": False, "message": str(e)}), 400
+    else:
+        try:
+            gitApi = gitlab.Gitlab(host_url, private_token=api_token)
+            projects = gitApi.projects.list(get_all=True)
+            return getProjects(projects)
+
+        except Exception as e:
+            return jsonify({"success": False, "message": str(e)}), 400
+
+
+@app.route('/create_issue', methods=['POST'])
+def create_issue():
+    data = request.get_json()
+
+    project_id = data.get('project_id')
+    api_token = data.get('api_token')
+    host_url = data.get('host_url')
+    title = data.get('title')
+    description = data.get('description')
+
+    LOGGER.debug(f"Create Issue for project: {project_id}")
+
+    if not all([project_id, title, description]):
+        return jsonify({"success": False, "message": "Missing required parameters."}), 400
+
+    if not all([project_id, api_token, host_url, title, description]):
+        try:
+            project = gl.projects.get(project_id)
+            issue = project.issues.create({"title": title, "description": description})
+            issue.save()
+            return jsonify({"success": True, "message": "Successfully created Issue."}), 200
+        except Exception as e:
+            return jsonify({"success": False, "message": str(e)}), 400
+    
+    else:
+        try:
+            gitApi = gitlab.Gitlab(host_url, private_token=api_token)
+            project = gitApi.projects.get(project_id)
+            issue = project.issues.create({"title": title, "description": description})
+            issue.save()
+            return jsonify({"success": True, "message": "Successfully created Issue."}), 200
+        except Exception as e:
+            return jsonify({"success": False, "message": str(e)}), 400
